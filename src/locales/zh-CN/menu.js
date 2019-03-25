@@ -4,9 +4,9 @@ export default {
   'menu.register': '注册',
   'menu.register.result': '注册结果',
 
-  'menu.usermanagement': '用户和权限',
-  'menu.usermanagement.user': '用户管理',
-  'menu.usermanagement.role': '角色管理',
+  'menu.userright': '用户和权限',
+  'menu.userright.user': '用户管理',
+  'menu.userright.role': '角色管理',
 
   'menu.dashboard': 'Dashboard',
   'menu.dashboard.analysis': '分析页',

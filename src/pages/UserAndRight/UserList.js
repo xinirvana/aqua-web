@@ -36,8 +36,8 @@ const getValue = obj =>
   Object.keys(obj)
     .map(key => obj[key])
     .join(',');
-const statusMap = ['default', 'processing', 'success', 'error'];
-const status = ['关闭', '运行中', '已上线', '异常'];
+const statusMap = ['default', 'success'];
+const status = ['禁用', '正常'];
 
 const CreateForm = Form.create()(props => {
   const { modalVisible, form, handleAdd, handleModalVisible } = props;
@@ -274,9 +274,9 @@ class UpdateForm extends PureComponent {
 }
 
 /* eslint react/no-multi-comp:0 */
-@connect(({ rule, loading }) => ({
-  rule,
-  loading: loading.models.rule,
+@connect(({ userright, loading }) => ({
+  userright,
+  loading: loading.models.userright,
 }))
 @Form.create()
 class UserList extends PureComponent {
@@ -291,21 +291,29 @@ class UserList extends PureComponent {
 
   columns = [
     {
-      title: '规则名称',
-      dataIndex: 'name',
-      render: text => <a onClick={() => this.previewItem(text)}>{text}</a>,
+      title: '用户名',
+      dataIndex: 'username',
     },
     {
-      title: '描述',
-      dataIndex: 'desc',
+      title: '手机号码',
+      dataIndex: 'phone',
     },
     {
-      title: '服务调用次数',
-      dataIndex: 'callNo',
+      title: 'Email',
+      dataIndex: 'email',
       sorter: true,
-      render: val => `${val} 万`,
-      // mark to display a total number
-      needTotal: true,
+    },
+    {
+      title: '创建日期',
+      dataIndex: 'created',
+      sorter: true,
+      render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
+    },
+    {
+      title: '修改日期',
+      dataIndex: 'updated',
+      sorter: true,
+      render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
     },
     {
       title: '状态',
@@ -319,32 +327,20 @@ class UserList extends PureComponent {
           text: status[1],
           value: 1,
         },
-        {
-          text: status[2],
-          value: 2,
-        },
-        {
-          text: status[3],
-          value: 3,
-        },
       ],
       render(val) {
         return <Badge status={statusMap[val]} text={status[val]} />;
       },
     },
     {
-      title: '上次调度时间',
-      dataIndex: 'updatedAt',
-      sorter: true,
-      render: val => <span>{moment(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
-    },
-    {
       title: '操作',
       render: (text, record) => (
         <Fragment>
-          <a onClick={() => this.handleUpdateModalVisible(true, record)}>配置</a>
+          <a onClick={() => this.handleUpdateModalVisible(true, record)}>编辑</a>
           <Divider type="vertical" />
-          <a href="">订阅警报</a>
+          <a href="">重置密码</a>
+          <Divider type="vertical" />
+          <a href="">指定角色</a>
         </Fragment>
       ),
     },
@@ -353,7 +349,7 @@ class UserList extends PureComponent {
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
-      type: 'rule/fetch',
+      type: 'userright/fetch',
     });
   }
 
@@ -378,7 +374,7 @@ class UserList extends PureComponent {
     }
 
     dispatch({
-      type: 'rule/fetch',
+      type: 'userright/fetch',
       payload: params,
     });
   };
@@ -394,7 +390,7 @@ class UserList extends PureComponent {
       formValues: {},
     });
     dispatch({
-      type: 'rule/fetch',
+      type: 'userright/fetch',
       payload: {},
     });
   };
@@ -454,7 +450,7 @@ class UserList extends PureComponent {
       });
 
       dispatch({
-        type: 'rule/fetch',
+        type: 'userright/fetch',
         payload: values,
       });
     });
@@ -513,16 +509,16 @@ class UserList extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={{ md: 8, lg: 24, xl: 48 }}>
           <Col md={8} sm={24}>
-            <FormItem label="规则名称">
-              {getFieldDecorator('name')(<Input placeholder="请输入" />)}
+            <FormItem label="用户名">
+              {getFieldDecorator('username')(<Input placeholder="请输入" />)}
             </FormItem>
           </Col>
           <Col md={8} sm={24}>
-            <FormItem label="使用状态">
+            <FormItem label="状态">
               {getFieldDecorator('status')(
                 <Select placeholder="请选择" style={{ width: '100%' }}>
-                  <Option value="0">关闭</Option>
-                  <Option value="1">运行中</Option>
+                  <Option value="0">禁用</Option>
+                  <Option value="1">正常</Option>
                 </Select>
               )}
             </FormItem>
@@ -626,7 +622,7 @@ class UserList extends PureComponent {
 
   render() {
     const {
-      rule: { data },
+      userright: { data },
       loading,
     } = this.props;
     const { selectedRows, modalVisible, updateModalVisible, stepFormValues } = this.state;

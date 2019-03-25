@@ -24,19 +24,19 @@ export default [
     Routes: ['src/pages/Authorized'],
     routes: [
       {
-        path: '/usermanagement',
-        name: 'usermanagement',
+        path: '/userright',
+        name: 'userright',
         icon: 'team',
         routes: [
           {
-            path: '/usermanagement/user',
+            path: '/userright/user',
             name: 'user',
-            component: './UserManage/UserList',
+            component: './UserAndRight/UserList',
           },
           {
-            path: '/usermanagement/role',
+            path: '/userright/role',
             name: 'role',
-            component: './UserManage/RoleList',
+            component: './UserAndRight/RoleList',
           },
         ],
       },
