@@ -23,6 +23,23 @@ export default [
     component: '../layouts/BasicLayout',
     Routes: ['src/pages/Authorized'],
     routes: [
+      {
+        path: '/usermanagement',
+        name: 'usermanagement',
+        icon: 'team',
+        routes: [
+          {
+            path: '/usermanagement/user',
+            name: 'user',
+            component: './UserManage/UserList',
+          },
+          {
+            path: '/usermanagement/role',
+            name: 'role',
+            component: './UserManage/RoleList',
+          },
+        ],
+      },
       // dashboard
       { path: '/', redirect: '/dashboard/analysis', authority: ['admin', 'user'] },
       {
