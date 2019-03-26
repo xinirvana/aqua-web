@@ -56,6 +56,12 @@ function getUser(req, res, u) {
     dataSource = dataSource.filter(data => data.email.indexOf(params.email) > -1);
   }
 
+  if (params.createdSt && params.createdEd) {
+    dataSource = dataSource.filter(
+      data => data.created >= params.createdSt && data.created <= params.createdEd
+    );
+  }
+
   let pageSize = 10;
   if (params.pageSize) {
     pageSize = params.pageSize * 1;

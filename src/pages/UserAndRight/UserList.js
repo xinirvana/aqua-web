@@ -449,9 +449,20 @@ class UserList extends PureComponent {
 
       const values = {
         ...fieldsValue,
-        createdSt: fieldsValue.created[0] && fieldsValue.created[0].valueOf(),
-        createdEd: fieldsValue.created[1] && fieldsValue.created[1].valueOf(),
+        // 按天选择的日期，设置一下时分秒，准确比较大小
+        createdSt:
+          fieldsValue.created &&
+          fieldsValue.created[0] &&
+          fieldsValue.created[0].set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).valueOf(),
+        createdEd:
+          fieldsValue.created &&
+          fieldsValue.created[1] &&
+          fieldsValue.created[1]
+            .set({ hour: 23, minute: 59, second: 59, millisecond: 999 })
+            .valueOf(),
       };
+      // 日期控件获取的值是一个moment对象，GET时会出错，需处理
+      if (values.created) delete values.created;
 
       this.setState({
         formValues: values,
@@ -642,7 +653,7 @@ class UserList extends PureComponent {
       handleUpdate: this.handleUpdate,
     };
     return (
-      <PageHeaderWrapper title="查询表格">
+      <PageHeaderWrapper title="用户管理">
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
