@@ -6,8 +6,8 @@ for (let i = 0; i < 46; i += 1) {
     id: i,
     username: `张三 ${i}`,
     password: null,
-    phone: '13888888888',
-    email: '123@123.com',
+    phone: '1388888888' + (i % 10),
+    email: 'zs' + i + '@123.com',
     status: i % 2,
     created: new Date(`2019-03-${Math.floor(i / 2) + 1}`),
     updated: new Date(`2019-03-${Math.floor(i / 2) + 1}`),
@@ -44,8 +44,16 @@ function getUser(req, res, u) {
     dataSource = filterDataSource;
   }
 
-  if (params.name) {
-    dataSource = dataSource.filter(data => data.name.indexOf(params.name) > -1);
+  if (params.username) {
+    dataSource = dataSource.filter(data => data.username.indexOf(params.username) > -1);
+  }
+
+  if (params.phone) {
+    dataSource = dataSource.filter(data => data.phone.indexOf(params.phone) > -1);
+  }
+
+  if (params.email) {
+    dataSource = dataSource.filter(data => data.email.indexOf(params.email) > -1);
   }
 
   let pageSize = 10;
