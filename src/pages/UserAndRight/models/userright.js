@@ -1,4 +1,4 @@
-import { queryUserList } from '@/services/userright';
+import { queryUser, addUser, updateUser } from '@/services/userright';
 
 export default {
   namespace: 'userright',
@@ -12,11 +12,27 @@ export default {
 
   effects: {
     *fetch({ payload }, { call, put }) {
-      const response = yield call(queryUserList, payload);
+      const response = yield call(queryUser, payload);
       yield put({
         type: 'save',
         payload: response,
       });
+    },
+    *add({ payload, callback }, { call, put }) {
+      const response = yield call(addUser, payload);
+      yield put({
+        type: 'save',
+        payload: response,
+      });
+      if (callback) callback();
+    },
+    *update({ payload, callback }, { call, put }) {
+      const response = yield call(updateUser, payload);
+      yield put({
+        type: 'save',
+        payload: response,
+      });
+      if (callback) callback();
     },
   },
 

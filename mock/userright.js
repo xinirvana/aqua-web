@@ -79,6 +79,50 @@ function getUser(req, res, u) {
   return res.json(result);
 }
 
+function postUser(req, res, u, b) {
+  let url = u;
+  if (!url || Object.prototype.toString.call(url) !== '[object String]') {
+    url = req.url; // eslint-disable-line
+  }
+
+  const body = (b && b.body) || req.body;
+  const { method, id, username, phone, email, status } = body;
+
+  switch (method) {
+    /* eslint no-case-declarations:0 */
+    case 'delete':
+      tableListDataSource = tableListDataSource.filter(item => key.indexOf(item.key) === -1);
+      break;
+    case 'post':
+      const i = Math.ceil(Math.random() * 10000);
+      userList.unshift({
+        id: i,
+        username: username,
+        password: null,
+        phone: phone,
+        email: email,
+        status: status,
+        created: new Date(),
+        updated: new Date(),
+      });
+      break;
+    case 'update':
+      userList = userList.map(item => {
+        if (item.id === id) {
+          Object.assign(item, { username, phone, email, status });
+          return item;
+        }
+        return item;
+      });
+      break;
+    default:
+      break;
+  }
+
+  return getUser(req, res, u);
+}
+
 export default {
   'GET /api/user': getUser,
+  'POST /api/user': postUser,
 };
