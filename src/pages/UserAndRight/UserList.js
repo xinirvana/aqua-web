@@ -20,7 +20,6 @@ import {
   message,
   Badge,
   Divider,
-  Steps,
   Radio,
 } from 'antd';
 import StandardTable from '@/components/StandardTable';
@@ -29,7 +28,6 @@ import PageHeaderWrapper from '@/components/PageHeaderWrapper';
 import styles from './UserList.less';
 
 const FormItem = Form.Item;
-const { Step } = Steps;
 const { TextArea } = Input;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
@@ -276,15 +274,9 @@ class UserList extends PureComponent {
   // 修改确认处理
   handleUpdate = fields => {
     const { dispatch } = this.props;
-    const { formValues, updateFormValues } = this.state;
-
     dispatch({
       type: 'userright/update',
-      payload: {
-        query: updateFormValues,
-        id: updateFormValues.id,
-        ...fields,
-      },
+      payload: fields,
     });
 
     message.success('修改成功');
@@ -547,16 +539,6 @@ class UpdateForm extends PureComponent {
   constructor(props) {
     super(props);
 
-    this.state = {
-      formVals: {
-        id: props.values.id,
-        username: props.values.username,
-        phone: props.values.phone,
-        email: props.values.email,
-        status: props.values.status + '',
-      },
-    };
-
     this.formLayout = {
       labelCol: { span: 7 },
       wrapperCol: { span: 15 },
@@ -565,7 +547,6 @@ class UpdateForm extends PureComponent {
 
   render = () => {
     const { updateModalVisible, form, handleUpdate, handleUpdateModalVisible, values } = this.props;
-    const { formVals } = this.state;
     const prefixSelector = form.getFieldDecorator('prefix', {
       initialValue: '86',
     })(
@@ -583,7 +564,7 @@ class UpdateForm extends PureComponent {
     };
     return [
       <Modal
-        key={formVals.id}
+        key={values.id}
         destroyOnClose
         title="编辑用户"
         visible={updateModalVisible}
@@ -591,17 +572,17 @@ class UpdateForm extends PureComponent {
         onCancel={() => handleUpdateModalVisible(false, values)}
         afterClose={() => handleUpdateModalVisible()}
       >
-        {form.getFieldDecorator('id')(<Input type="hidden" />)}
+        {form.getFieldDecorator('id', { initialValue: values.id })(<Input type="hidden" />)}
         <FormItem {...this.formLayout} label="用户名">
           {form.getFieldDecorator('username', {
             rules: [{ required: true, message: '请输入至少两个字符的用户名！', min: 2 }],
-            initialValue: formVals.username,
+            initialValue: values.username,
           })(<Input placeholder="请输入" />)}
         </FormItem>
         <FormItem {...this.formLayout} label="手机号">
           {form.getFieldDecorator('phone', {
             rules: [{ required: true, message: '请输入手机号！', min: 8 }],
-            initialValue: formVals.phone,
+            initialValue: values.phone,
           })(<Input addonBefore={prefixSelector} placeholder="请输入" />)}
         </FormItem>
         <FormItem {...this.formLayout} label="Email">
@@ -616,12 +597,12 @@ class UpdateForm extends PureComponent {
                 message: '请输入Email！',
               },
             ],
-            initialValue: formVals.email,
+            initialValue: values.email,
           })(<Input placeholder="请输入" />)}
         </FormItem>
         <FormItem {...this.formLayout} label="状态">
           {form.getFieldDecorator('status', {
-            initialValue: formVals.status,
+            initialValue: values.status + '',
           })(
             <Select placeholder="请选择" style={{ width: '100%' }}>
               <Option value="1">正常</Option>

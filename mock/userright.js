@@ -79,50 +79,66 @@ function getUser(req, res, u) {
   return res.json(result);
 }
 
-function postUser(req, res, u, b) {
-  let url = u;
-  if (!url || Object.prototype.toString.call(url) !== '[object String]') {
-    url = req.url; // eslint-disable-line
-  }
+function getUserById(req, res) {
+  let id = req.params.id;
+  let user =
+    userList.filter(item => parseInt(item.id, 10) === parseInt(id, 10)) &&
+    userList.filter(item => parseInt(item.id, 10) === parseInt(id, 10))[0];
+  return res.json(user);
+}
 
+function addUser(req, res, u, b) {
   const body = (b && b.body) || req.body;
-  const { method, id, username, phone, email, status } = body;
+  const { username, phone, email, status } = body;
 
-  switch (method) {
-    /* eslint no-case-declarations:0 */
-    case 'delete':
-      tableListDataSource = tableListDataSource.filter(item => key.indexOf(item.key) === -1);
-      break;
-    case 'post':
-      const i = Math.ceil(Math.random() * 10000);
-      userList.unshift({
-        id: i,
-        username: username,
-        password: null,
-        phone: phone,
-        email: email,
-        status: status,
-        created: new Date(),
+  const i = Math.ceil(Math.random() * 10000);
+  userList.unshift({
+    id: i,
+    username: username,
+    password: null,
+    phone: phone,
+    email: email,
+    status: status,
+    created: new Date(),
+    updated: new Date(),
+  });
+  console.log('added');
+  return getUser(req, res, u);
+  //return res.json({success: true, message: 'added'});
+}
+
+function updateUser(req, res, u, b) {
+  const body = (b && b.body) || req.body;
+  const { id, username, phone, email, status } = body;
+
+  userList.forEach(item => {
+    if (parseInt(item.id, 10) === parseInt(id, 10)) {
+      item = Object.assign(item, {
+        username: username || item.username,
+        phone: phone || item.phone,
+        email: email || item.email,
+        status: status || item.status,
         updated: new Date(),
       });
-      break;
-    case 'update':
-      userList = userList.map(item => {
-        if (item.id === id) {
-          Object.assign(item, { username, phone, email, status });
-          return item;
-        }
-        return item;
-      });
-      break;
-    default:
-      break;
-  }
-
+    }
+  });
+  console.log('updated');
   return getUser(req, res, u);
+  //return res.json({success: true, message: 'updated'});
+}
+
+function deleteUser(req, res, u) {
+  let id = req.params.id;
+  userList = userList.filter(item => parseInt(item.id, 10) !== parseInt(id, 10));
+  console.log('deleted');
+  return getUser(req, res, u);
+  //return res.json({success: true, message: 'deleted'});
 }
 
 export default {
   'GET /api/user': getUser,
-  'POST /api/user': postUser,
+  'GET /api/user/:id': getUserById,
+  'POST /api/user': addUser,
+  'PUT /api/user': updateUser,
+  'DELETE /api/user/:id': deleteUser,
 };

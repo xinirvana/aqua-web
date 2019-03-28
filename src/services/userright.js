@@ -8,19 +8,13 @@ export async function queryUser(params) {
 export async function addUser(params) {
   return request('/api/user', {
     method: 'POST',
-    body: {
-      ...params,
-      method: 'post',
-    },
+    body: params,
   });
 }
 
 export async function updateUser(params = {}) {
-  return request(`/api/user?${stringify(params.query)}`, {
-    method: 'POST',
-    body: {
-      ...params,
-      method: 'update',
-    },
+  return request('/api/user', {
+    method: 'PUT',
+    body: params,
   });
 }
