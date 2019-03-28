@@ -123,8 +123,8 @@ function updateUser(req, res, u, b) {
     }
   });
   console.log('updated');
-  return getUser(req, res, u);
-  //return res.json({success: true, message: 'updated'});
+  //return getUser(req, res, u);
+  return res.json({success: true, message: 'updated'});
 }
 
 function deleteUser(req, res, u) {

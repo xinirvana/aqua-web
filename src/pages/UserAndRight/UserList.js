@@ -269,6 +269,7 @@ class UserList extends PureComponent {
 
     message.success('添加成功');
     this.handleModalVisible();
+    this.tableReload();
   };
 
   // 修改确认处理
@@ -281,6 +282,17 @@ class UserList extends PureComponent {
 
     message.success('修改成功');
     this.handleUpdateModalVisible();
+    this.tableReload();
+  };
+
+  // 重新查询
+  tableReload = () => {
+    const { dispatch } = this.props;
+    const { formValues } = this.state;
+    dispatch({
+      type: 'userright/fetch',
+      payload: formValues,
+    });
   };
 
   // 查询条件表单 - 简单
