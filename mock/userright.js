@@ -103,8 +103,7 @@ function addUser(req, res, u, b) {
     updated: new Date(),
   });
   console.log('added');
-  return getUser(req, res, u);
-  //return res.json({success: true, message: 'added'});
+  return res.json({success: true, message: 'added'});
 }
 
 function updateUser(req, res, u, b) {
@@ -123,7 +122,6 @@ function updateUser(req, res, u, b) {
     }
   });
   console.log('updated');
-  //return getUser(req, res, u);
   return res.json({success: true, message: 'updated'});
 }
 
@@ -131,8 +129,25 @@ function deleteUser(req, res, u) {
   let id = req.params.id;
   userList = userList.filter(item => parseInt(item.id, 10) !== parseInt(id, 10));
   console.log('deleted');
-  return getUser(req, res, u);
-  //return res.json({success: true, message: 'deleted'});
+  return res.json({success: true, message: 'deleted'});
+}
+
+function resetPwd(req, res, u, b) {
+  const body = (b && b.body) || req.body;
+  const { ids } = body;
+
+  ids.forEach(id => {
+    userList.forEach(item => {
+      if (parseInt(item.id, 10) === parseInt(id, 10)) {
+        item = Object.assign(item, {
+          password: 888888,
+          updated: new Date(),
+        });
+      }
+    });
+  });
+  console.log('pwds reseted');
+  return res.json({success: true, message: 'pwds reseted'});
 }
 
 export default {
@@ -141,4 +156,5 @@ export default {
   'POST /api/user': addUser,
   'PUT /api/user': updateUser,
   'DELETE /api/user/:id': deleteUser,
+  'PUT /api/user/resetpwd': resetPwd,
 };

@@ -21,6 +21,7 @@ import {
   Badge,
   Divider,
   Radio,
+  Popconfirm,
 } from 'antd';
 import StandardTable from '@/components/StandardTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
@@ -113,8 +114,6 @@ class UserList extends PureComponent {
         <Fragment>
           <a onClick={() => this.handleUpdateModalVisible(true, record)}>编辑</a>
           <Divider type="vertical" />
-          <a href="">重置密码</a>
-          <Divider type="vertical" />
           <a href="">指定角色</a>
         </Fragment>
       ),
@@ -177,6 +176,29 @@ class UserList extends PureComponent {
     });
   };
 
+  // 重置密码事件处理
+  handleResetPwd = () => {
+    const { dispatch } = this.props;
+    const { selectedRows } = this.state;
+    
+    if (selectedRows.length === 0) return;
+    dispatch({
+      type: 'userright/resetpwd',
+      payload: {
+        ids: selectedRows.map(row => row.id),
+      },
+      callback: (res) => {
+        if (res && res.success) {
+          message.success('重置密码成功');
+          this.tableReload();
+        } else {
+          message.error('重置密码失败');
+        }
+      },
+    });
+  };
+
+  // 更多操作菜单点击事件处理
   handleMenuClick = e => {
     const { dispatch } = this.props;
     const { selectedRows } = this.state;
@@ -201,6 +223,7 @@ class UserList extends PureComponent {
     }
   };
 
+  // 行选择事件处理
   handleSelectRows = rows => {
     this.setState({
       selectedRows: rows,
@@ -265,11 +288,16 @@ class UserList extends PureComponent {
     dispatch({
       type: 'userright/add',
       payload: fields,
+      callback: (res) => {
+        if (res && res.success) {
+          message.success('添加成功');
+          this.tableReload();
+        } else {
+          message.error('添加失败');
+        }
+      },
     });
-
-    message.success('添加成功');
     this.handleModalVisible();
-    this.tableReload();
   };
 
   // 修改确认处理
@@ -278,11 +306,16 @@ class UserList extends PureComponent {
     dispatch({
       type: 'userright/update',
       payload: fields,
+      callback: (res) => {
+        if (res && res.success) {
+          message.success('修改成功');
+          this.tableReload();
+        } else {
+          message.error('修改失败');
+        }
+      },
     });
-
-    message.success('修改成功');
     this.handleUpdateModalVisible();
-    this.tableReload();
   };
 
   // 重新查询
@@ -418,8 +451,8 @@ class UserList extends PureComponent {
     const { selectedRows, modalVisible, updateModalVisible, updateFormValues } = this.state;
     const menu = (
       <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
+        <Menu.Item key="disable">禁用</Menu.Item>
         <Menu.Item key="remove">删除</Menu.Item>
-        <Menu.Item key="approval">批量审批</Menu.Item>
       </Menu>
     );
 
@@ -442,7 +475,9 @@ class UserList extends PureComponent {
               </Button>
               {selectedRows.length > 0 && (
                 <span>
-                  <Button>批量操作</Button>
+                  <Popconfirm placement="rightBottom" title="确认重置密码？（888888）" onConfirm={this.handleResetPwd} okText="确认" cancelText="取消">
+                    <Button>重置密码</Button>
+                  </Popconfirm>
                   <Dropdown overlay={menu}>
                     <Button>
                       更多操作 <Icon type="down" />

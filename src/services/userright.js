@@ -13,8 +13,27 @@ export async function addUser(params) {
 }
 
 export async function updateUser(params = {}) {
+  //await sleep(3000);
   return request('/api/user', {
     method: 'PUT',
     body: params,
   });
+}
+
+export async function removeUser(id) {
+  return request('/api/user/' + id, {
+    method: 'DELETE',
+  });
+}
+
+export async function resetPwd(params) {
+  return request('/api/user/resetpwd', {
+    method: 'PUT',
+    body: params,
+  });
+}
+
+// Sleep方法：异步方法中使用 await sleep(3000); 调用，实现阻塞
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
 }

@@ -1,4 +1,4 @@
-import { queryUser, addUser, updateUser } from '@/services/userright';
+import { queryUser, addUser, updateUser, removeUser, resetPwd } from '@/services/userright';
 
 export default {
   namespace: 'userright',
@@ -15,20 +15,42 @@ export default {
       const response = yield call(queryUser, payload);
       yield put({
         type: 'save',
-        payload: response,
+        payload: {
+          data: response,
+        }
       });
     },
     *add({ payload, callback }, { call, put }) {
       const response = yield call(addUser, payload);
-      if (callback) callback();
+      yield put({
+        type: 'save',
+        payload: {},
+      });
+      if (callback) callback(response);
     },
     *update({ payload, callback }, { call, put }) {
-      yield call(updateUser, payload);      
-      if (callback) callback();
+      const response = yield call(updateUser, payload);
+      yield put({
+        type: 'save',
+        payload: {},
+      });
+      if (callback) callback(response);
     },
     *remove({ payload, callback }, { call, put }) {
-      const response = yield call(removeRule, payload);
-      if (callback) callback();
+      const response = yield call(removeUser, payload);
+      yield put({
+        type: 'save',
+        payload: {},
+      });
+      if (callback) callback(response);
+    },
+    *resetpwd({ payload, callback }, { call, put }) {
+      const response = yield call(resetPwd, payload);
+      yield put({
+        type: 'save',
+        payload: {},
+      });
+      if (callback) callback(response);
     },
   },
 
@@ -36,7 +58,7 @@ export default {
     save(state, action) {
       return {
         ...state,
-        data: action.payload,
+        ...action.payload,
       };
     },
   },
