@@ -205,16 +205,38 @@ class UserList extends PureComponent {
 
     if (selectedRows.length === 0) return;
     switch (e.key) {
+      case 'disable':
+        dispatch({
+          type: 'userright/disable',
+          payload: {
+            ids: selectedRows.map(row => row.id),
+          },
+          callback: (res) => {
+            if (res && res.success) {
+              message.success('禁用成功');
+              this.tableReload();
+            } else {
+              message.error('禁用失败');
+            }
+          },
+        });
+        break;
       case 'remove':
         dispatch({
-          type: 'rule/remove',
+          type: 'userright/remove',
           payload: {
-            key: selectedRows.map(row => row.key),
+            ids: selectedRows.map(row => row.id),
           },
-          callback: () => {
-            this.setState({
-              selectedRows: [],
-            });
+          callback: (res) => {
+            if (res && res.success) {
+              message.success('删除成功');
+              this.setState({
+                selectedRows: [],
+              });
+              this.tableReload();
+            } else {
+              message.error('删除失败');
+            }
           },
         });
         break;
@@ -452,7 +474,7 @@ class UserList extends PureComponent {
     const menu = (
       <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
         <Menu.Item key="disable">禁用</Menu.Item>
-        <Menu.Item key="remove">删除</Menu.Item>
+        <Menu.Item key="remove" disabled="true">删除</Menu.Item>
       </Menu>
     );
 

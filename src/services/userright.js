@@ -20,16 +20,30 @@ export async function updateUser(params = {}) {
   });
 }
 
-export async function removeUser(id) {
-  return request('/api/user/' + id, {
-    method: 'DELETE',
-  });
-}
-
 export async function resetPwd(params) {
   return request('/api/user/resetpwd', {
     method: 'PUT',
     body: params,
+  });
+}
+
+export async function disable(params) {
+  return request('/api/user/disable', {
+    method: 'PUT',
+    body: params,
+  });
+}
+
+export async function removeUsers(params) {
+  return request('/api/user', {
+    method: 'DELETE',
+    body: params,
+  });
+}
+
+export async function removeUser(id) {
+  return request('/api/user/' + id, {
+    method: 'DELETE',
   });
 }
 

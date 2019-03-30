@@ -103,7 +103,7 @@ function addUser(req, res, u, b) {
     updated: new Date(),
   });
   console.log('added');
-  return res.json({success: true, message: 'added'});
+  return res.status(201).json({success: true, message: 'added'});
 }
 
 function updateUser(req, res, u, b) {
@@ -122,14 +122,7 @@ function updateUser(req, res, u, b) {
     }
   });
   console.log('updated');
-  return res.json({success: true, message: 'updated'});
-}
-
-function deleteUser(req, res, u) {
-  let id = req.params.id;
-  userList = userList.filter(item => parseInt(item.id, 10) !== parseInt(id, 10));
-  console.log('deleted');
-  return res.json({success: true, message: 'deleted'});
+  return res.status(201).json({success: true, message: 'updated'});
 }
 
 function resetPwd(req, res, u, b) {
@@ -147,7 +140,41 @@ function resetPwd(req, res, u, b) {
     });
   });
   console.log('pwds reseted');
-  return res.json({success: true, message: 'pwds reseted'});
+  return res.status(201).json({success: true, message: 'pwds reseted'});
+}
+
+function disable(req, res, u, b) {
+  const body = (b && b.body) || req.body;
+  const { ids } = body;
+
+  ids.forEach(id => {
+    userList.forEach(item => {
+      if (parseInt(item.id, 10) === parseInt(id, 10) && parseInt(item.status, 10) === 1) {
+        item = Object.assign(item, {
+          status: 0,
+          updated: new Date(),
+        });
+      }
+    });
+  });
+  console.log('disabled');
+  return res.status(201).json({success: true, message: 'disabled'});
+}
+
+function deleteUsers(req, res, u, b) {
+  const body = (b && b.body) || req.body;
+  const { ids } = body;
+
+  userList = userList.filter(item => ids.indexOf(parseInt(item.id, 10)) < 0);
+  console.log('users deleted');
+  return res.json({success: true, message: 'users deleted'});
+}
+
+function deleteUser(req, res, u) {
+  let id = req.params.id;
+  userList = userList.filter(item => parseInt(item.id, 10) !== parseInt(id, 10));
+  console.log('deleted');
+  return res.json({success: true, message: 'deleted'});
 }
 
 export default {
@@ -155,6 +182,8 @@ export default {
   'GET /api/user/:id': getUserById,
   'POST /api/user': addUser,
   'PUT /api/user': updateUser,
-  'DELETE /api/user/:id': deleteUser,
   'PUT /api/user/resetpwd': resetPwd,
+  'PUT /api/user/disable': disable,
+  'DELETE /api/user': deleteUsers,
+  'DELETE /api/user/:id': deleteUser,
 };

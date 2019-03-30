@@ -1,4 +1,4 @@
-import { queryUser, addUser, updateUser, removeUser, resetPwd } from '@/services/userright';
+import { queryUser, addUser, updateUser, resetPwd, disable, removeUsers, removeUser } from '@/services/userright';
 
 export default {
   namespace: 'userright',
@@ -36,14 +36,6 @@ export default {
       });
       if (callback) callback(response);
     },
-    *remove({ payload, callback }, { call, put }) {
-      const response = yield call(removeUser, payload);
-      yield put({
-        type: 'save',
-        payload: {},
-      });
-      if (callback) callback(response);
-    },
     *resetpwd({ payload, callback }, { call, put }) {
       const response = yield call(resetPwd, payload);
       yield put({
@@ -51,6 +43,23 @@ export default {
         payload: {},
       });
       if (callback) callback(response);
+    },
+    *disable({ payload, callback }, { call, put }) {
+      const response = yield call(disable, payload);
+      yield put({
+        type: 'save',
+        payload: {},
+      });
+      if (callback) callback(response);
+    },
+    *remove({ payload, callback }, { call, put }) {
+      const response = yield call(removeUsers, payload);
+      yield put({
+        type: 'save',
+        payload: {},
+      });
+      // 
+      if (callback) callback(JSON.parse(response));
     },
   },
 
