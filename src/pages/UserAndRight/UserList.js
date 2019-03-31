@@ -14,14 +14,13 @@ import {
   Button,
   Dropdown,
   Menu,
-  InputNumber,
   DatePicker,
   Modal,
   message,
   Badge,
   Divider,
-  Radio,
   Popconfirm,
+  Transfer,
 } from 'antd';
 import StandardTable from '@/components/StandardTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
@@ -32,7 +31,6 @@ const FormItem = Form.Item;
 const { TextArea } = Input;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
-const RadioGroup = Radio.Group;
 const getValue = obj =>
   Object.keys(obj)
     .map(key => obj[key])
@@ -58,6 +56,9 @@ class UserList extends PureComponent {
     selectedRows: [],
     formValues: {}, // 查询条件
     updateFormValues: {},
+    roleSetModalVisible: false,
+    targetRoleIds: [],
+    selectedRoleIds: [],
   };
 
   columns = [
@@ -114,7 +115,7 @@ class UserList extends PureComponent {
         <Fragment>
           <a onClick={() => this.handleUpdateModalVisible(true, record)}>编辑</a>
           <Divider type="vertical" />
-          <a href="">指定角色</a>
+          <a onClick={() => this.handleRoleSetModalVisible(true, record)}>指定角色</a>
         </Fragment>
       ),
     },
@@ -304,6 +305,14 @@ class UserList extends PureComponent {
     });
   };
 
+  // 显示角色指定Modal对话框
+  handleRoleSetModalVisible = (flag, record) => {
+    this.setState({
+      roleSetModalVisible: !!flag,
+      //updateFormValues: record || {},
+    });
+  };
+
   // 新增确认处理
   handleAdd = fields => {
     const { dispatch } = this.props;
@@ -467,10 +476,10 @@ class UserList extends PureComponent {
   // 查询列表 默认渲染
   render() {
     const {
-      userright: { data },
+      userright: { data, roleData },
       loading,
     } = this.props;
-    const { selectedRows, modalVisible, updateModalVisible, updateFormValues } = this.state;
+    const { selectedRows, modalVisible, updateModalVisible, updateFormValues, roleSetModalVisible } = this.state;
     const menu = (
       <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
         <Menu.Item key="disable">禁用</Menu.Item>
@@ -485,6 +494,10 @@ class UserList extends PureComponent {
     const updateMethods = {
       handleUpdateModalVisible: this.handleUpdateModalVisible,
       handleUpdate: this.handleUpdate,
+    };
+    const roleSetMethods = {
+      handleRoleSetModalVisible: this.handleRoleSetModalVisible,
+      //handleUpdate: this.handleUpdate,
     };
     return (
       <PageHeaderWrapper title="用户管理">
@@ -527,6 +540,7 @@ class UserList extends PureComponent {
             values={updateFormValues}
           />
         ) : null}
+        <RoleSetForm {...roleSetMethods} roleSetModalVisible={roleSetModalVisible} roleData={roleData} />
       </PageHeaderWrapper>
     );
   }
@@ -683,5 +697,37 @@ class UpdateForm extends PureComponent {
     ];
   };
 }
+
+// 指定角色Modal
+const RoleSetForm = Form.create()(props => {
+  const { roleSetModalVisible, handleRoleSet, handleRoleSetModalVisible, roleData, targetRoleIds, selectedRoleIds } = props;
+  const okHandle = () => {
+    // form.validateFields((err, fieldsValue) => {
+    //   if (err) return;
+    //   form.resetFields();
+    //   handleRoleSet(fieldsValue);
+    // });
+  };
+  return (
+    <Modal
+      destroyOnClose
+      title="指定角色"
+      visible={roleSetModalVisible}
+      onOk={okHandle}
+      onCancel={() => handleRoleSetModalVisible()}
+    >
+      <div>
+        <Transfer
+          dataSource={roleData}
+          titles={['可指定角色', '已指定角色']}
+          targetKeys={targetRoleIds}
+          selectedKeys={selectedRoleIds}
+          render={item => item.name}
+          showSearch='true'
+        />        
+      </div>
+    </Modal>
+  );
+});
 
 export default UserList;

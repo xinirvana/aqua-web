@@ -4,7 +4,7 @@ let userList = [];
 for (let i = 0; i < 46; i += 1) {
   userList.push({
     id: i,
-    username: `张三 ${i}`,
+    username: `张三${i}`,
     password: null,
     phone: '1388888888' + (i % 10),
     email: 'zs' + i + '@123.com',
@@ -177,6 +177,21 @@ function deleteUser(req, res, u) {
   return res.json({success: true, message: 'deleted'});
 }
 
+let roleList = [];
+for (let i = 0; i < 10; i += 1) {
+  roleList.push({
+    id: i,
+    name: `角色${i}`,
+    roleDesc: `角色${i}用于角色${i}`,
+    created: new Date(`2019-03-${Math.floor(i / 2) + 1}`),
+    updated: new Date(`2019-03-${Math.floor(i / 2) + 1}`),
+  });
+}
+
+function getRole(req, res, u) {
+  return res.json(roleList);
+}
+
 export default {
   'GET /api/user': getUser,
   'GET /api/user/:id': getUserById,
@@ -186,4 +201,6 @@ export default {
   'PUT /api/user/disable': disable,
   'DELETE /api/user': deleteUsers,
   'DELETE /api/user/:id': deleteUser,
+  
+  'GET /api/role': getRole,
 };

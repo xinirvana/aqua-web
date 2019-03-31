@@ -1,4 +1,4 @@
-import { queryUser, addUser, updateUser, resetPwd, disable, removeUsers, removeUser } from '@/services/userright';
+import { queryUser, addUser, updateUser, resetPwd, disable, removeUsers, removeUser, queryRole } from '@/services/userright';
 
 export default {
   namespace: 'userright',
@@ -8,6 +8,7 @@ export default {
       list: [],
       pagination: {},
     },
+    roleData: [],
   },
 
   effects: {
@@ -60,6 +61,15 @@ export default {
       });
       // 
       if (callback) callback(JSON.parse(response));
+    },
+    *fetchRole({ payload }, { call, put }) {
+      const response = yield call(queryRole, payload);
+      yield put({
+        type: 'save',
+        payload: {
+          roleData: response,
+        }
+      });
     },
   },
 
