@@ -3,6 +3,15 @@ export default {
   'menu.login': 'Login',
   'menu.register': 'Register',
   'menu.register.result': 'Register Result',
+
+  'menu.documents': 'Documents',
+  'menu.documents.ant-design': 'Ant Design',
+  'menu.documents.ant-design-pro': 'Ant Design Pro',
+
+  'menu.userright': 'User & Right',
+  'menu.userright.user': 'User Management',
+  'menu.userright.role': 'Role Management',
+
   'menu.dashboard': 'Dashboard',
   'menu.dashboard.analysis': 'Analysis',
   'menu.dashboard.monitor': 'Monitor',

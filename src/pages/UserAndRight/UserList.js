@@ -57,7 +57,9 @@ class UserList extends PureComponent {
     formValues: {}, // 查询条件
     updateFormValues: {},
     roleSetModalVisible: false,
+    roleData: [],
     targetRoleIds: [],
+    disabled: true,
   };
 
   columns = [
@@ -128,6 +130,13 @@ class UserList extends PureComponent {
     });
     dispatch({
       type: 'userright/fetchRole',
+      callback: (res) => {
+        if (res) {
+          this.setState({roleData: res});
+        } else {
+          message.error('获取角色失败');
+        }
+      },
     });
   }
 
@@ -186,7 +195,7 @@ class UserList extends PureComponent {
     
     if (selectedRows.length === 0) return;
     dispatch({
-      type: 'userright/resetpwd',
+      type: 'userright/resetPwd',
       payload: {
         ids: selectedRows.map(row => row.id),
       },
@@ -309,10 +318,27 @@ class UserList extends PureComponent {
 
   // 显示角色指定Modal对话框
   handleRoleSetModalVisible = (flag, record) => {
-    this.setState({targetRoleIds: [3, 5, 6]});
     this.setState({
       roleSetModalVisible: !!flag,
       //updateFormValues: record || {},
+    });
+
+    this.setState({disabled: true});
+    const { dispatch } = this.props;
+
+    dispatch({
+      type: 'userright/fetchUserRole',
+      payload: {
+        userId: 6,
+      },
+      callback: (res) => {
+        if (res) {
+          this.setState({targetRoleIds: res});
+        } else {
+          this.setState({targetRoleIds: []});
+        }
+        this.setState({disabled: false});
+      },
     });
   };
 
@@ -362,16 +388,12 @@ class UserList extends PureComponent {
     });
   };
 
+  // 选项来回转移事件处理
   handleChange = (nextTargetKeys, direction, moveKeys) => {
     this.setState({ targetRoleIds: nextTargetKeys });
-
-    console.log('--handleChange {------------------------------------------');
-    console.log('targetKeys: ', nextTargetKeys);
-    console.log('direction: ', direction);
-    console.log('moveKeys: ', moveKeys);
-    console.log('--------------------------------------------');
-    console.log('targetRoleIds: ', this.state.targetRoleIds);
-    console.log('--handleChange }------------------------------------------\n\n');
+    // console.log('targetKeys: ', nextTargetKeys);
+    // console.log('direction: ', direction);
+    // console.log('moveKeys: ', moveKeys);
   }
 
   // 查询条件表单 - 简单
@@ -491,10 +513,11 @@ class UserList extends PureComponent {
   // 查询列表 默认渲染
   render() {
     const {
-      userright: { data, roleData },
+      userright: { data },
       loading,
     } = this.props;
-    const { selectedRows, modalVisible, updateModalVisible, updateFormValues, roleSetModalVisible } = this.state;
+    const { selectedRows, modalVisible, updateModalVisible, updateFormValues, 
+      roleSetModalVisible, roleData, targetRoleIds, disabled } = this.state;
     const menu = (
       <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
         <Menu.Item key="disable">禁用</Menu.Item>
@@ -559,6 +582,8 @@ class UserList extends PureComponent {
           {...roleSetMethods}
           roleSetModalVisible={roleSetModalVisible}
           roleData={roleData}
+          targetRoleIds={targetRoleIds}
+          disabled={disabled}
         />
       </PageHeaderWrapper>
     );
@@ -721,7 +746,7 @@ class UpdateForm extends PureComponent {
 const RoleSetForm = Form.create()(props => {
   const { 
     roleData, targetRoleIds,
-    roleSetModalVisible, handleRoleSet, handleRoleSetModalVisible, handleChange } = props;
+    roleSetModalVisible, handleRoleSet, handleRoleSetModalVisible, handleChange, disabled } = props;
   const okHandle = () => {
     // form.validateFields((err, fieldsValue) => {
     //   if (err) return;
@@ -739,7 +764,7 @@ const RoleSetForm = Form.create()(props => {
     >
       <div>
         <Transfer
-          //rowKey={record => record.id}
+          rowKey={record => record.id}
           dataSource={roleData}
           titles={['可指定角色', '已指定角色']}
           targetKeys={targetRoleIds}
@@ -747,6 +772,7 @@ const RoleSetForm = Form.create()(props => {
           render={item => item.name}
           showSearch
           listStyle={{ width: 210, height: 300, }}
+          disabled={disabled}
         />
       </div>
     </Modal>

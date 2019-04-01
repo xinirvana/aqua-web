@@ -1,4 +1,5 @@
-import { queryUser, addUser, updateUser, resetPwd, disable, removeUsers, removeUser, queryRole } from '@/services/userright';
+import { queryUser, addUser, updateUser, resetPwd, disable, removeUsers, removeUser, 
+  queryRole, queryUserRole } from '@/services/userright';
 
 export default {
   namespace: 'userright',
@@ -8,7 +9,6 @@ export default {
       list: [],
       pagination: {},
     },
-    roleData: [],
   },
 
   effects: {
@@ -37,7 +37,7 @@ export default {
       });
       if (callback) callback(response);
     },
-    *resetpwd({ payload, callback }, { call, put }) {
+    *resetPwd({ payload, callback }, { call, put }) {
       const response = yield call(resetPwd, payload);
       yield put({
         type: 'save',
@@ -59,17 +59,16 @@ export default {
         type: 'save',
         payload: {},
       });
-      // 
+      // request.js DELETE默认不返回json对象
       if (callback) callback(JSON.parse(response));
     },
-    *fetchRole({ payload }, { call, put }) {
+    *fetchRole({ payload, callback }, { call }) {
       const response = yield call(queryRole, payload);
-      yield put({
-        type: 'save',
-        payload: {
-          roleData: response,
-        }
-      });
+      if (callback) callback(response);
+    },
+    *fetchUserRole({ payload, callback }, { call }) {
+      const response = yield call(queryUserRole, payload);
+      if (callback) callback(response);
     },
   },
 

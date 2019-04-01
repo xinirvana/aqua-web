@@ -48,7 +48,13 @@ export async function removeUser(id) {
 }
 
 export async function queryRole(params) {
+  await sleep(3000);
   return request(`/api/role?${stringify(params)}`);
+}
+
+export async function queryUserRole(params) {
+  await sleep(3000);
+  return request(`/api/userrole?${stringify(params)}`);
 }
 
 // Sleep方法：异步方法中使用 await sleep(3000); 调用，实现阻塞

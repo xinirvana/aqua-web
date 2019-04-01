@@ -23,20 +23,39 @@ export default [
     component: '../layouts/BasicLayout',
     Routes: ['src/pages/Authorized'],
     routes: [
+      // 文档
+      {
+        path: '/documents',
+        name: 'documents',
+        icon: 'file-text',
+        routes: [
+          {
+            path: 'https://ant.design/docs/react/introduce-cn',
+            target: '_blank',
+            name: "ant-design",
+          },
+          {
+            path: 'https://pro.ant.design/docs/getting-started-cn',
+            target: '_blank',
+            name: "ant-design-pro",
+          },
+        ],
+      },
+      // 用户与权限
       {
         path: '/userright',
         name: 'userright',
         icon: 'team',
         routes: [
           {
-            path: '/userright/user',
-            name: 'user',
-            component: './UserAndRight/UserList',
-          },
-          {
             path: '/userright/role',
             name: 'role',
             component: './UserAndRight/RoleList',
+          },
+          {
+            path: '/userright/user',
+            name: 'user',
+            component: './UserAndRight/UserList',
           },
         ],
       },

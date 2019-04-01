@@ -76,6 +76,7 @@ function getUser(req, res, u) {
     },
   };
 
+  console.log('Mock: got users');
   return res.json(result);
 }
 
@@ -102,7 +103,7 @@ function addUser(req, res, u, b) {
     created: new Date(),
     updated: new Date(),
   });
-  console.log('added');
+  console.log('Mock: user added');
   return res.status(201).json({success: true, message: 'added'});
 }
 
@@ -121,7 +122,7 @@ function updateUser(req, res, u, b) {
       });
     }
   });
-  console.log('updated');
+  console.log('Mock: user updated');
   return res.status(201).json({success: true, message: 'updated'});
 }
 
@@ -139,7 +140,7 @@ function resetPwd(req, res, u, b) {
       }
     });
   });
-  console.log('pwds reseted');
+  console.log('Mock: pwds reseted');
   return res.status(201).json({success: true, message: 'pwds reseted'});
 }
 
@@ -157,7 +158,7 @@ function disable(req, res, u, b) {
       }
     });
   });
-  console.log('disabled');
+  console.log('Mock: user disabled');
   return res.status(201).json({success: true, message: 'disabled'});
 }
 
@@ -166,21 +167,20 @@ function deleteUsers(req, res, u, b) {
   const { ids } = body;
 
   userList = userList.filter(item => ids.indexOf(parseInt(item.id, 10)) < 0);
-  console.log('users deleted');
+  console.log('Mock: users deleted');
   return res.json({success: true, message: 'users deleted'});
 }
 
 function deleteUser(req, res, u) {
   let id = req.params.id;
   userList = userList.filter(item => parseInt(item.id, 10) !== parseInt(id, 10));
-  console.log('deleted');
+  console.log('Mock: user deleted');
   return res.json({success: true, message: 'deleted'});
 }
 
 let roleList = [];
 for (let i = 0; i < 10; i += 1) {
   roleList.push({
-    key: i,
     id: i,
     name: `角色${i}`,
     roleDesc: `角色${i}用于角色${i}`,
@@ -190,7 +190,21 @@ for (let i = 0; i < 10; i += 1) {
 }
 
 function getRole(req, res, u) {
+  console.log('Mock: got roles');
   return res.json(roleList);
+}
+
+let userRole = [3, 5, 6];
+
+function getUserRole(req, res, u) {
+  let url = u;
+  if (!url || Object.prototype.toString.call(url) !== '[object String]') {
+    url = req.url; // eslint-disable-line
+  }
+  const params = parse(url, true).query;
+
+  console.log('Mock: got roles of user ' + params.userId);
+  return res.json(userRole);
 }
 
 export default {
@@ -204,4 +218,5 @@ export default {
   'DELETE /api/user/:id': deleteUser,
   
   'GET /api/role': getRole,
+  'GET /api/userrole': getUserRole,
 };

@@ -4,6 +4,10 @@ export default {
   'menu.register': '注册',
   'menu.register.result': '注册结果',
 
+  'menu.documents': '文档',
+  'menu.documents.ant-design': 'Ant Design',
+  'menu.documents.ant-design-pro': 'Ant Design Pro',
+
   'menu.userright': '用户和权限',
   'menu.userright.user': '用户管理',
   'menu.userright.role': '角色管理',
