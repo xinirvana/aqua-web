@@ -58,7 +58,6 @@ class UserList extends PureComponent {
     updateFormValues: {},
     roleSetModalVisible: false,
     targetRoleIds: [],
-    selectedRoleIds: [],
   };
 
   columns = [
@@ -126,6 +125,9 @@ class UserList extends PureComponent {
     const { dispatch } = this.props;
     dispatch({
       type: 'userright/fetch',
+    });
+    dispatch({
+      type: 'userright/fetchRole',
     });
   }
 
@@ -307,6 +309,7 @@ class UserList extends PureComponent {
 
   // 显示角色指定Modal对话框
   handleRoleSetModalVisible = (flag, record) => {
+    this.setState({targetRoleIds: [3, 5, 6]});
     this.setState({
       roleSetModalVisible: !!flag,
       //updateFormValues: record || {},
@@ -358,6 +361,18 @@ class UserList extends PureComponent {
       payload: formValues,
     });
   };
+
+  handleChange = (nextTargetKeys, direction, moveKeys) => {
+    this.setState({ targetRoleIds: nextTargetKeys });
+
+    console.log('--handleChange {------------------------------------------');
+    console.log('targetKeys: ', nextTargetKeys);
+    console.log('direction: ', direction);
+    console.log('moveKeys: ', moveKeys);
+    console.log('--------------------------------------------');
+    console.log('targetRoleIds: ', this.state.targetRoleIds);
+    console.log('--handleChange }------------------------------------------\n\n');
+  }
 
   // 查询条件表单 - 简单
   renderSimpleForm() {
@@ -497,7 +512,7 @@ class UserList extends PureComponent {
     };
     const roleSetMethods = {
       handleRoleSetModalVisible: this.handleRoleSetModalVisible,
-      //handleUpdate: this.handleUpdate,
+      handleChange: this.handleChange,
     };
     return (
       <PageHeaderWrapper title="用户管理">
@@ -540,7 +555,11 @@ class UserList extends PureComponent {
             values={updateFormValues}
           />
         ) : null}
-        <RoleSetForm {...roleSetMethods} roleSetModalVisible={roleSetModalVisible} roleData={roleData} />
+        <RoleSetForm 
+          {...roleSetMethods}
+          roleSetModalVisible={roleSetModalVisible}
+          roleData={roleData}
+        />
       </PageHeaderWrapper>
     );
   }
@@ -700,7 +719,9 @@ class UpdateForm extends PureComponent {
 
 // 指定角色Modal
 const RoleSetForm = Form.create()(props => {
-  const { roleSetModalVisible, handleRoleSet, handleRoleSetModalVisible, roleData, targetRoleIds, selectedRoleIds } = props;
+  const { 
+    roleData, targetRoleIds,
+    roleSetModalVisible, handleRoleSet, handleRoleSetModalVisible, handleChange } = props;
   const okHandle = () => {
     // form.validateFields((err, fieldsValue) => {
     //   if (err) return;
@@ -718,13 +739,15 @@ const RoleSetForm = Form.create()(props => {
     >
       <div>
         <Transfer
+          //rowKey={record => record.id}
           dataSource={roleData}
           titles={['可指定角色', '已指定角色']}
           targetKeys={targetRoleIds}
-          selectedKeys={selectedRoleIds}
+          onChange={handleChange}
           render={item => item.name}
-          showSearch='true'
-        />        
+          showSearch
+          listStyle={{ width: 210, height: 300, }}
+        />
       </div>
     </Modal>
   );

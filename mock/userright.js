@@ -180,6 +180,7 @@ function deleteUser(req, res, u) {
 let roleList = [];
 for (let i = 0; i < 10; i += 1) {
   roleList.push({
+    key: i,
     id: i,
     name: `角色${i}`,
     roleDesc: `角色${i}用于角色${i}`,
