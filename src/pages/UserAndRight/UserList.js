@@ -21,6 +21,7 @@ import {
   Divider,
   Popconfirm,
   Transfer,
+  Spin,
 } from 'antd';
 import StandardTable from '@/components/StandardTable';
 import PageHeaderWrapper from '@/components/PageHeaderWrapper';
@@ -45,21 +46,27 @@ const status = ['禁用', '正常'];
 /* eslint react/no-multi-comp:0 */
 @connect(({ userright, loading }) => ({
   userright,
-  loading: loading.models.userright,
+  loading: loading,
 }))
 @Form.create()
 class UserList extends PureComponent {
   state = {
-    modalVisible: false,
-    updateModalVisible: false,
-    expandForm: false,
-    selectedRows: [],
-    formValues: {}, // 查询条件
-    updateFormValues: {},
-    roleSetModalVisible: false,
-    roleData: [],
-    targetRoleIds: [],
-    disabled: true,
+    expandForm: false,// 简单/复杂查询条件表单切换boolean
+    selectedRows: [],// 多选选中行
+    formValues: {},// 查询条件
+
+    modalVisible: false,// 新增用户Modal可见性
+    confirmLoading: false,// 新增用户Modal确认按钮Loading
+
+    updateModalVisible: false,// 修改用户Modal可见性
+    updateConfirmLoading: false,// 修改用户Modal确认按钮Loading
+    updateFormValues: {},// 修改用户表单数据
+
+    roleData: [],// 所有可用角色
+    roleSetModalVisible: false,// 指定角色Modal可见性
+    roleSetModalLoading: false,// 指定角色Modal内部Loading
+    targetRoleIds: [],// 选中角色Id
+    roleSetConfirmLoading: false,// 指定角色Modal确认按钮Loading
   };
 
   columns = [
@@ -79,7 +86,6 @@ class UserList extends PureComponent {
     {
       title: 'Email',
       dataIndex: 'email',
-      sorter: true,
     },
     {
       title: '创建日期',
@@ -125,9 +131,11 @@ class UserList extends PureComponent {
   // 生命周期方法：组件渲染完成
   componentDidMount() {
     const { dispatch } = this.props;
+    // 用户列表数据获取（默认无条件）
     dispatch({
       type: 'userright/fetch',
     });
+    // 角色数据获取
     dispatch({
       type: 'userright/fetchRole',
       callback: (res) => {
@@ -180,7 +188,7 @@ class UserList extends PureComponent {
     });
   };
 
-  // 展开收起扩展查看条件表单
+  // 展开/收起复杂查询条件表单
   toggleForm = () => {
     const { expandForm } = this.state;
     this.setState({
@@ -194,15 +202,16 @@ class UserList extends PureComponent {
     const { selectedRows } = this.state;
     
     if (selectedRows.length === 0) return;
+    message.loading('处理中...', 0);
     dispatch({
       type: 'userright/resetPwd',
       payload: {
         ids: selectedRows.map(row => row.id),
       },
       callback: (res) => {
+        message.destroy();
         if (res && res.success) {
           message.success('重置密码成功');
-          this.tableReload();
         } else {
           message.error('重置密码失败');
         }
@@ -216,6 +225,7 @@ class UserList extends PureComponent {
     const { selectedRows } = this.state;
 
     if (selectedRows.length === 0) return;
+    message.loading('处理中...', 0);
     switch (e.key) {
       case 'disable':
         dispatch({
@@ -224,6 +234,7 @@ class UserList extends PureComponent {
             ids: selectedRows.map(row => row.id),
           },
           callback: (res) => {
+            message.destroy();
             if (res && res.success) {
               message.success('禁用成功');
               this.tableReload();
@@ -240,6 +251,7 @@ class UserList extends PureComponent {
             ids: selectedRows.map(row => row.id),
           },
           callback: (res) => {
+            message.destroy();
             if (res && res.success) {
               message.success('删除成功');
               this.setState({
@@ -318,37 +330,48 @@ class UserList extends PureComponent {
 
   // 显示角色指定Modal对话框
   handleRoleSetModalVisible = (flag, record) => {
-    this.setState({
-      roleSetModalVisible: !!flag,
-      //updateFormValues: record || {},
-    });
-
-    this.setState({disabled: true});
-    const { dispatch } = this.props;
-
-    dispatch({
-      type: 'userright/fetchUserRole',
-      payload: {
-        userId: 6,
-      },
-      callback: (res) => {
-        if (res) {
-          this.setState({targetRoleIds: res});
-        } else {
-          this.setState({targetRoleIds: []});
-        }
-        this.setState({disabled: false});
-      },
-    });
+    // 显示
+    if (!!flag && !this.state.roleSetModalVisible) {
+      this.setState({
+        roleSetModalVisible: !!flag,
+      });
+  
+      this.setState({roleSetModalLoading: true});
+      const { dispatch } = this.props;
+  
+      dispatch({
+        type: 'userright/fetchUserRole',
+        payload: {
+          userId: record.id,
+        },
+        callback: (res) => {
+          if (res) {
+            this.setState({targetRoleIds: res, roleSetUserId: record.id});
+          } else {
+            this.setState({targetRoleIds: [], roleSetUserId: record.id});
+          }
+          this.setState({roleSetModalLoading: false});
+        },
+      });
+    } else {
+      // 隐藏
+      this.setState({
+        roleSetModalVisible: false,
+        targetRoleIds: []
+      });
+    }
   };
 
   // 新增确认处理
   handleAdd = fields => {
+    this.setState({confirmLoading: true});
     const { dispatch } = this.props;
     dispatch({
       type: 'userright/add',
       payload: fields,
       callback: (res) => {
+        this.setState({confirmLoading: false});
+        this.handleModalVisible();
         if (res && res.success) {
           message.success('添加成功');
           this.tableReload();
@@ -357,16 +380,18 @@ class UserList extends PureComponent {
         }
       },
     });
-    this.handleModalVisible();
   };
 
   // 修改确认处理
   handleUpdate = fields => {
+    this.setState({updateConfirmLoading: true});
     const { dispatch } = this.props;
     dispatch({
       type: 'userright/update',
       payload: fields,
       callback: (res) => {
+        this.setState({updateConfirmLoading: false});
+        this.handleUpdateModalVisible();
         if (res && res.success) {
           message.success('修改成功');
           this.tableReload();
@@ -375,7 +400,6 @@ class UserList extends PureComponent {
         }
       },
     });
-    this.handleUpdateModalVisible();
   };
 
   // 重新查询
@@ -394,7 +418,29 @@ class UserList extends PureComponent {
     // console.log('targetKeys: ', nextTargetKeys);
     // console.log('direction: ', direction);
     // console.log('moveKeys: ', moveKeys);
-  }
+  };
+
+  // 指定角色确认处理
+  handleRoleSet = () => {
+    this.setState({roleSetConfirmLoading: true});
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'userright/setUserRole',
+      payload: {
+        userId: this.state.roleSetUserId,
+        roleIds: this.state.targetRoleIds,
+      },
+      callback: (res) => {
+        this.setState({roleSetConfirmLoading: false});
+        this.handleRoleSetModalVisible();
+        if (res && res.success) {
+          message.success('指定角色成功');
+        } else {
+          message.error('指定角色失败');
+        }
+      },
+    });
+  };
 
   // 查询条件表单 - 简单
   renderSimpleForm() {
@@ -437,7 +483,7 @@ class UserList extends PureComponent {
     );
   }
 
-  // 查询条件表单 - 扩展
+  // 查询条件表单 - 复杂
   renderAdvancedForm() {
     const {
       form: { getFieldDecorator },
@@ -516,12 +562,13 @@ class UserList extends PureComponent {
       userright: { data },
       loading,
     } = this.props;
-    const { selectedRows, modalVisible, updateModalVisible, updateFormValues, 
-      roleSetModalVisible, roleData, targetRoleIds, disabled } = this.state;
+    const { selectedRows, modalVisible, updateModalVisible, updateFormValues,
+      confirmLoading, updateConfirmLoading, roleSetConfirmLoading, roleSetModalLoading,
+      roleSetModalVisible, roleData, targetRoleIds } = this.state;
     const menu = (
       <Menu onClick={this.handleMenuClick} selectedKeys={[]}>
         <Menu.Item key="disable">禁用</Menu.Item>
-        <Menu.Item key="remove" disabled="true">删除</Menu.Item>
+        <Menu.Item key="remove" disabled>删除</Menu.Item>
       </Menu>
     );
 
@@ -536,6 +583,7 @@ class UserList extends PureComponent {
     const roleSetMethods = {
       handleRoleSetModalVisible: this.handleRoleSetModalVisible,
       handleChange: this.handleChange,
+      handleRoleSet: this.handleRoleSet,
     };
     return (
       <PageHeaderWrapper title="用户管理">
@@ -562,7 +610,7 @@ class UserList extends PureComponent {
             <StandardTable
               rowKey={record => record.id}
               selectedRows={selectedRows}
-              loading={loading}
+              loading={loading.effects['userright/fetch']}
               data={data}
               columns={this.columns}
               onSelectRow={this.handleSelectRows}
@@ -570,20 +618,23 @@ class UserList extends PureComponent {
             />
           </div>
         </Card>
-        <CreateForm {...addMethods} modalVisible={modalVisible} />
+        <CreateForm {...addMethods}
+          modalVisible={modalVisible}
+          confirmLoading={confirmLoading}
+        />
         {updateFormValues && Object.keys(updateFormValues).length ? (
-          <UpdateForm
-            {...updateMethods}
+          <UpdateForm {...updateMethods}
             updateModalVisible={updateModalVisible}
+            updateConfirmLoading={updateConfirmLoading}
             values={updateFormValues}
           />
         ) : null}
-        <RoleSetForm 
-          {...roleSetMethods}
+        <RoleSetForm {...roleSetMethods}
           roleSetModalVisible={roleSetModalVisible}
           roleData={roleData}
           targetRoleIds={targetRoleIds}
-          disabled={disabled}
+          roleSetConfirmLoading={roleSetConfirmLoading}
+          roleSetModalLoading={roleSetModalLoading}
         />
       </PageHeaderWrapper>
     );
@@ -592,7 +643,7 @@ class UserList extends PureComponent {
 
 // 新建用户Modal
 const CreateForm = Form.create()(props => {
-  const { modalVisible, form, handleAdd, handleModalVisible } = props;
+  const { modalVisible, form, handleAdd, handleModalVisible, confirmLoading } = props;
   const prefixSelector = form.getFieldDecorator('prefix', {
     initialValue: '86',
   })(
@@ -604,8 +655,8 @@ const CreateForm = Form.create()(props => {
   const okHandle = () => {
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-      form.resetFields();
       handleAdd(fieldsValue);
+      //form.resetFields();
     });
   };
   return (
@@ -614,6 +665,7 @@ const CreateForm = Form.create()(props => {
       title="新建用户"
       visible={modalVisible}
       onOk={okHandle}
+      confirmLoading={confirmLoading}
       onCancel={() => handleModalVisible()}
     >
       <FormItem labelCol={{ span: 5 }} wrapperCol={{ span: 15 }} label="用户名">
@@ -673,7 +725,7 @@ class UpdateForm extends PureComponent {
   }
 
   render = () => {
-    const { updateModalVisible, form, handleUpdate, handleUpdateModalVisible, values } = this.props;
+    const { updateModalVisible, form, handleUpdate, handleUpdateModalVisible, values, updateConfirmLoading } = this.props;
     const prefixSelector = form.getFieldDecorator('prefix', {
       initialValue: '86',
     })(
@@ -685,7 +737,7 @@ class UpdateForm extends PureComponent {
     const okHandle = () => {
       form.validateFields((err, fieldsValue) => {
         if (err) return;
-        form.resetFields();
+        //form.resetFields();
         handleUpdate(fieldsValue);
       });
     };
@@ -696,6 +748,7 @@ class UpdateForm extends PureComponent {
         title="编辑用户"
         visible={updateModalVisible}
         onOk={okHandle}
+        confirmLoading={updateConfirmLoading}
         onCancel={() => handleUpdateModalVisible(false, values)}
         afterClose={() => handleUpdateModalVisible()}
       >
@@ -745,14 +798,10 @@ class UpdateForm extends PureComponent {
 // 指定角色Modal
 const RoleSetForm = Form.create()(props => {
   const { 
-    roleData, targetRoleIds,
-    roleSetModalVisible, handleRoleSet, handleRoleSetModalVisible, handleChange, disabled } = props;
+    roleData, targetRoleIds, roleSetModalVisible, roleSetConfirmLoading, roleSetModalLoading,
+    handleRoleSet, handleRoleSetModalVisible, handleChange } = props;
   const okHandle = () => {
-    // form.validateFields((err, fieldsValue) => {
-    //   if (err) return;
-    //   form.resetFields();
-    //   handleRoleSet(fieldsValue);
-    // });
+    handleRoleSet();
   };
   return (
     <Modal
@@ -760,21 +809,24 @@ const RoleSetForm = Form.create()(props => {
       title="指定角色"
       visible={roleSetModalVisible}
       onOk={okHandle}
+      confirmLoading={roleSetConfirmLoading}
       onCancel={() => handleRoleSetModalVisible()}
+      okButtonProps={{disabled: roleSetModalLoading}}
     >
-      <div>
-        <Transfer
-          rowKey={record => record.id}
-          dataSource={roleData}
-          titles={['可指定角色', '已指定角色']}
-          targetKeys={targetRoleIds}
-          onChange={handleChange}
-          render={item => item.name}
-          showSearch
-          listStyle={{ width: 210, height: 300, }}
-          disabled={disabled}
-        />
-      </div>
+      <Spin spinning={roleSetModalLoading}>
+        <div>
+          <Transfer
+            rowKey={record => record.id}
+            dataSource={roleData}
+            titles={['可指定角色', '已指定角色']}
+            targetKeys={targetRoleIds}
+            onChange={handleChange}
+            render={item => item.name}
+            showSearch
+            listStyle={{ width: 210, height: 300, }}
+          />
+        </div>
+    </Spin>
     </Modal>
   );
 });

@@ -6,6 +6,7 @@ export async function queryUser(params) {
 }
 
 export async function addUser(params) {
+  await sleep(3000);
   return request('/api/user', {
     method: 'POST',
     body: params,
@@ -13,7 +14,7 @@ export async function addUser(params) {
 }
 
 export async function updateUser(params = {}) {
-  //await sleep(3000);
+  await sleep(3000);
   return request('/api/user', {
     method: 'PUT',
     body: params,
@@ -21,6 +22,7 @@ export async function updateUser(params = {}) {
 }
 
 export async function resetPwd(params) {
+  await sleep(3000);
   return request('/api/user/resetpwd', {
     method: 'PUT',
     body: params,
@@ -28,6 +30,7 @@ export async function resetPwd(params) {
 }
 
 export async function disable(params) {
+  await sleep(3000);
   return request('/api/user/disable', {
     method: 'PUT',
     body: params,
@@ -35,6 +38,7 @@ export async function disable(params) {
 }
 
 export async function removeUsers(params) {
+  await sleep(3000);
   return request('/api/user', {
     method: 'DELETE',
     body: params,
@@ -57,7 +61,15 @@ export async function queryUserRole(params) {
   return request(`/api/userrole?${stringify(params)}`);
 }
 
+export async function setUserRole(params) {
+  await sleep(3000);
+  return request('/api/userrole', {
+    method: 'PUT',
+    body: params,
+  });
+}
+
 // Sleep方法：异步方法中使用 await sleep(3000); 调用，实现阻塞
 function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
+  return new Promise(resolve => setTimeout(resolve, ms));
 }

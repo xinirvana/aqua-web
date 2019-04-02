@@ -207,6 +207,15 @@ function getUserRole(req, res, u) {
   return res.json(userRole);
 }
 
+function setUserRole(req, res, u, b) {
+  const body = (b && b.body) || req.body;
+  const { userId, roleIds } = body;
+
+  userRole = roleIds;
+  console.log('Mock: roles of user ' + userId + ' set');
+  return res.status(201).json({success: true, message: 'roles set'});
+}
+
 export default {
   'GET /api/user': getUser,
   'GET /api/user/:id': getUserById,
@@ -219,4 +228,5 @@ export default {
   
   'GET /api/role': getRole,
   'GET /api/userrole': getUserRole,
+  'PUT /api/userrole': setUserRole,
 };

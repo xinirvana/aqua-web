@@ -5,6 +5,7 @@ export default {
   'menu.register.result': '注册结果',
 
   'menu.documents': '文档',
+  'menu.documents.react': 'React',
   'menu.documents.ant-design': 'Ant Design',
   'menu.documents.ant-design-pro': 'Ant Design Pro',
 

@@ -1,5 +1,5 @@
 import { queryUser, addUser, updateUser, resetPwd, disable, removeUsers, removeUser, 
-  queryRole, queryUserRole } from '@/services/userright';
+  queryRole, queryUserRole, setUserRole } from '@/services/userright';
 
 export default {
   namespace: 'userright',
@@ -68,6 +68,14 @@ export default {
     },
     *fetchUserRole({ payload, callback }, { call }) {
       const response = yield call(queryUserRole, payload);
+      if (callback) callback(response);
+    },
+    *setUserRole({ payload, callback }, { call, put }) {
+      const response = yield call(setUserRole, payload);
+      // yield put({
+      //   type: 'save',
+      //   payload: {},
+      // });
       if (callback) callback(response);
     },
   },

@@ -30,6 +30,11 @@ export default [
         icon: 'file-text',
         routes: [
           {
+            path: 'https://zh-hans.reactjs.org/docs/getting-started.html',
+            target: '_blank',
+            name: "react",
+          },
+          {
             path: 'https://ant.design/docs/react/introduce-cn',
             target: '_blank',
             name: "ant-design",
@@ -48,14 +53,14 @@ export default [
         icon: 'team',
         routes: [
           {
-            path: '/userright/role',
-            name: 'role',
-            component: './UserAndRight/RoleList',
-          },
-          {
             path: '/userright/user',
             name: 'user',
             component: './UserAndRight/UserList',
+          },
+          {
+            path: '/userright/role',
+            name: 'role',
+            component: './UserAndRight/RoleList',
           },
         ],
       },

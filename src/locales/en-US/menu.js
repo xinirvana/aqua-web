@@ -5,6 +5,7 @@ export default {
   'menu.register.result': 'Register Result',
 
   'menu.documents': 'Documents',
+  'menu.documents.react': 'React',
   'menu.documents.ant-design': 'Ant Design',
   'menu.documents.ant-design-pro': 'Ant Design Pro',
 
